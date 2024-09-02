@@ -115,7 +115,7 @@ def write_emotions_gdp_population_csv():
     
     missing_entries = []
     with open('output/emotions_gdp_population.csv', 'w', newline='', encoding='utf-8') as csvfile:
-        fieldnames = ['Country', 'Region', 'GDP', 'Population', 'Enjoyment', 'Well-Rested', 'Learned', 'Smiled', 'Respect', 'Positive Emotions Index']
+        fieldnames = ['Country', 'Region', 'GDP', 'Population', 'Enjoyment', 'Well-Rested', 'Learned', 'Smiled', 'Respect', 'Positive Experience Index']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         
         writer.writeheader()
@@ -137,8 +137,8 @@ def write_emotions_gdp_population_csv():
             for emotion in positive_emotions:
                 row[emotion] = emotions[emotion]
             
-            # Calculate Positive Emotions Index
-            row['Positive Emotions Index'] = sum(row[emotion] for emotion in positive_emotions if row[emotion] is not None) / len([e for e in positive_emotions if row[e] is not None])
+            # Calculate Positive Experience Index
+            row['Positive Experience Index'] = sum(row[emotion] for emotion in positive_emotions if row[emotion] is not None) / len([e for e in positive_emotions if row[e] is not None])
             
             writer.writerow(row)
     
