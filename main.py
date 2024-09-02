@@ -70,6 +70,14 @@ def get_gallup_emotions_data() -> Dict[str, Dict[str, Union[float, None]]]:
     
     return emotions_data
 
+def get_region_lookup() -> Dict[str, str]:
+    region_lookup = {}
+    with open('input/country-continent-codes.csv', 'r', encoding='utf-8') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            region_lookup[row['iso3']] = row['continent']
+    return region_lookup
+
 def check_for_missing_gdp_entries():
     gdp_data = get_gdp_lookup()
     gallup_emotions_data = get_gallup_emotions_data()
@@ -100,13 +108,14 @@ def write_emotions_gdp_population_csv():
     gdp_data = get_gdp_lookup()
     emotions_data = get_gallup_emotions_data()
     population_data = get_population_lookup()
+    region_data = get_region_lookup()
     
     with open('input/gallup_country_codes.json', 'r', encoding='utf-8') as file:
         country_codes = json.load(file)
     
     missing_entries = []
     with open('output/emotions_gdp_population.csv', 'w', newline='', encoding='utf-8') as csvfile:
-        fieldnames = ['Country', 'GDP', 'Population', 'Enjoyment', 'Well-Rested', 'Learned', 'Smiled', 'Respect', 'Positive Emotions Index']
+        fieldnames = ['Country', 'Region', 'GDP', 'Population', 'Enjoyment', 'Well-Rested', 'Learned', 'Smiled', 'Respect', 'Positive Emotions Index']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         
         writer.writeheader()
@@ -114,10 +123,11 @@ def write_emotions_gdp_population_csv():
         for country, emotions in emotions_data.items():
             row = {'Country': country}
             
-            # Get GDP and Population
+            # Get GDP, Population, and Region
             code = country_codes[country]
             row['GDP'] = gdp_data.get(code)
             row['Population'] = population_data.get(code)
+            row['Region'] = region_data.get(code, 'Unknown')
             if row['GDP'] is None or row['Population'] is None:
                 missing_entries.append(country)
             
@@ -132,7 +142,7 @@ def write_emotions_gdp_population_csv():
             
             writer.writerow(row)
     
-    print("CSV file 'emotions_gdp_data.csv' has been created.")
+    print("CSV file 'emotions_gdp_population.csv' has been created.")
     
     if missing_entries:
         print("Countries in Gallup data without corresponding GDP or Population data:")
